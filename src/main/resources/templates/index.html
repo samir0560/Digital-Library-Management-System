@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System - Home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        nav h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        nav ul li a {
+            color: #2d3748;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-size: 15px;
+            white-space: nowrap;
+        }
+
+        nav ul li a:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+            padding: 5px;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            width: 28px;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(8px, -8px);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+            padding-top: 80px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+            opacity: 0.3;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            color: white;
+            max-width: 900px;
+            padding: 40px;
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-content h1 {
+            font-size: 64px;
+            font-weight: 800;
+            margin-bottom: 25px;
+            text-shadow: 3px 3px 15px rgba(0,0,0,0.3);
+            line-height: 1.2;
+        }
+
+        .hero-content p {
+            font-size: 22px;
+            margin-bottom: 40px;
+            line-height: 1.8;
+            opacity: 0.95;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-hero {
+            padding: 18px 40px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .btn-hero:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.3);
+            background: #f7fafc;
+        }
+
+        .btn-hero.secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-hero.secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 60px;
+            background: white;
+        }
+
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 70px;
+        }
+
+        .section-header h2 {
+            font-size: 48px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-header p {
+            font-size: 20px;
+            color: #718096;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .feature-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .feature-card p {
+            color: #718096;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            color: white;
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        footer p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        /* Mobile Menu */
+        @media (max-width: 968px) {
+            .hamburger {
+                display: flex;
+            }
+
+            nav ul {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 280px;
+                height: 100vh;
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 80px 30px 30px;
+                gap: 0;
+                box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+                transition: right 0.3s ease;
+                z-index: 1000;
+            }
+
+            nav ul.active {
+                right: 0;
+            }
+
+            nav ul li {
+                width: 100%;
+                border-bottom: 1px solid #e2e8f0;
+            }
+
+            nav ul li:last-child {
+                border-bottom: none;
+            }
+
+            nav ul li a {
+                display: block;
+                width: 100%;
+                padding: 15px 0;
+                border-radius: 0;
+                font-size: 16px;
+            }
+
+            nav ul li a:hover {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                transform: translateX(5px);
+                padding-left: 10px;
+            }
+
+            nav {
+                padding: 15px 30px;
+            }
+
+            nav h1 {
+                font-size: 24px;
+            }
+
+            .hero-content h1 {
+                font-size: 42px;
+            }
+
+            .hero-content p {
+                font-size: 18px;
+            }
+
+            .features {
+                padding: 60px 30px;
+            }
+
+            .section-header h2 {
+                font-size: 36px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Overlay for mobile menu */
+        .menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .menu-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        @media (max-width: 600px) {
+            .hero-content h1 {
+                font-size: 32px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn-hero {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav>
+        <h1>📚 Library Management System</h1>
+        <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <ul id="navMenu">
+            <li><a th:href="@{/}">🏠 Home</a></li>
+            <li><a href="#features">✨ Features</a></li>
+            <li><a href="#about">ℹ️ About</a></li>
+            <li><a href="#contact">📧 Contact</a></li>
+            <li><a href="#help">❓ Help</a></li>
+            <li><a th:href="@{/signup}">📝 Sign Up</a></li>
+            <li><a th:href="@{/login}">🔐 Login</a></li>
+        </ul>
+    </nav>
+    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Welcome to Modern Library Management</h1>
+            <p>Experience a seamless, efficient, and user-friendly library management platform designed for students and administrators. Manage books, track issues, and streamline your library operations with ease.</p>
+            <div class="hero-buttons">
+                <a th:href="@{/signup}" class="btn-hero">Get Started</a>
+                <a th:href="@{/login}" class="btn-hero secondary">Sign In</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="features-container">
+            <div class="section-header">
+                <h2>Why Choose Our System?</h2>
+                <p>Discover the features that make library management effortless and efficient</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>Book Management</h3>
+                    <p>Easily add, update, and manage your library collection with an intuitive interface. Track availability and quantities in real-time.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📖</div>
+                    <h3>Issue & Return</h3>
+                    <p>Streamlined book issuing and returning process with automatic due date calculation and fine management for overdue books.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>User Management</h3>
+                    <p>Secure user authentication with role-based access control. Students and administrators have dedicated dashboards.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Track Records</h3>
+                    <p>Comprehensive tracking of all book issues, returns, and fines. View complete history and generate reports effortlessly.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Secure & Safe</h3>
+                    <p>Advanced security with BCrypt password hashing and Spring Security. Your data is protected with industry-standard encryption.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Responsive Design</h3>
+                    <p>Access your library from any device. Our responsive design ensures a seamless experience on desktop, tablet, and mobile.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="features" style="background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);">
+        <div class="features-container">
+            <div class="section-header">
+                <h2>About Our System</h2>
+                <p>Modern library management made simple and efficient</p>
+            </div>
+            <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                <p style="font-size: 18px; color: #4a5568; line-height: 1.8; margin-bottom: 30px;">
+                    Our Library Management System is designed to streamline library operations for educational institutions. 
+                    With a user-friendly interface and powerful features, managing books, students, and library resources has never been easier.
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; margin-top: 50px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 15px;">📚</div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">Easy to Use</h3>
+                        <p style="color: #718096;">Intuitive interface for all users</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 15px;">⚡</div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">Fast & Efficient</h3>
+                        <p style="color: #718096;">Quick access to all features</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 15px;">🔒</div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">Secure</h3>
+                        <p style="color: #718096;">Your data is safe with us</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="features">
+        <div class="features-container">
+            <div class="section-header">
+                <h2>Contact Us</h2>
+                <p>Get in touch with our support team</p>
+            </div>
+            <div style="max-width: 600px; margin: 0 auto; text-align: center;">
+                <div style="background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); padding: 40px; border-radius: 20px;">
+                    <div style="margin-bottom: 25px;">
+                        <div style="font-size: 32px; margin-bottom: 10px;">📧</div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">Email</h3>
+                        <p style="color: #718096;">support@librarysystem.com</p>
+                    </div>
+                    <div style="margin-bottom: 25px;">
+                        <div style="font-size: 32px; margin-bottom: 10px;">📞</div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">Phone</h3>
+                        <p style="color: #718096;">+1 (555) 123-4567</p>
+                    </div>
+                    <div>
+                        <div style="font-size: 32px; margin-bottom: 10px;">📍</div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">Address</h3>
+                        <p style="color: #718096;">123 Library Street, Education City, EC 12345</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Help/FAQ Section -->
+    <section id="help" class="features" style="background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);">
+        <div class="features-container">
+            <div class="section-header">
+                <h2>Frequently Asked Questions</h2>
+                <p>Find answers to common questions</p>
+            </div>
+            <div style="max-width: 800px; margin: 0 auto;">
+                <div style="background: white; padding: 30px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <h3 style="color: #2d3748; margin-bottom: 10px;">How do I sign up?</h3>
+                    <p style="color: #718096; line-height: 1.7;">Click on the "Sign Up" button in the navigation bar and fill in your details. You'll need to provide your full name, username, email, and password.</p>
+                </div>
+                <div style="background: white; padding: 30px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <h3 style="color: #2d3748; margin-bottom: 10px;">How many books can I borrow?</h3>
+                    <p style="color: #718096; line-height: 1.7;">Students can borrow multiple books at once. The exact limit depends on your institution's policy. Check with your librarian for specific details.</p>
+                </div>
+                <div style="background: white; padding: 30px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <h3 style="color: #2d3748; margin-bottom: 10px;">What happens if I return a book late?</h3>
+                    <p style="color: #718096; line-height: 1.7;">Late returns incur fines that are automatically calculated. You can view and pay fines through your student dashboard.</p>
+                </div>
+                <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <h3 style="color: #2d3748; margin-bottom: 10px;">Can I renew a book?</h3>
+                    <p style="color: #718096; line-height: 1.7;">Yes! You can renew books up to 2 times through your student dashboard, as long as the book is not overdue and no one else has reserved it.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Library Management System. All rights reserved.</p>
+        <p style="margin-top: 10px; opacity: 0.7;">Built with Spring Boot & Modern Web Technologies</p>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const navMenu = document.getElementById('navMenu');
+            const hamburger = document.getElementById('hamburger');
+            const overlay = document.getElementById('menuOverlay');
+            
+            navMenu.classList.toggle('active');
+            hamburger.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Close menu when clicking on a link
+        document.querySelectorAll('#navMenu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 968) {
+                    toggleMenu();
+                }
+            });
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

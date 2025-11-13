@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Log - Library Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #2d3748;
+        }
+
+        .content-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #2d3748;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-issue { background: #bee3f8; color: #2c5282; }
+        .badge-return { background: #c6f6d5; color: #22543d; }
+        .badge-add { background: #d6f5d6; color: #276749; }
+        .badge-update { background: #fefcbf; color: #744210; }
+        .badge-delete { background: #fed7d7; color: #742a2a; }
+        .badge-renew { background: #e9d8fd; color: #553c9a; }
+        .badge-reserve { background: #fed7cc; color: #7c2d12; }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-badge {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .refresh-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #43a047;
+            margin-right: 5px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .refresh-indicator.paused {
+            background: #e53935;
+            animation: none;
+        }
+
+        .last-updated {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 10px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Activity Log</h1>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span id="autoRefreshStatus" style="font-size: 14px; color: #43a047; font-weight: 600;">
+                        <span class="refresh-indicator"></span> Auto-refresh: ON
+                    </span>
+                    <button id="toggleRefreshBtn" onclick="toggleAutoRefresh()" class="btn" style="padding: 8px 16px; background: #43a047; color: white; font-size: 12px;">
+                        Pause
+                    </button>
+                </div>
+                <a th:href="@{/admin/dashboard}" class="btn btn-primary">← Back to Dashboard</a>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <p style="color: #718096; font-size: 14px; margin: 0;">
+                        Showing activities from the last 24 hours only. Older activities are automatically cleaned up.
+                    </p>
+                    <p style="color: #718096; font-size: 12px; margin: 5px 0 0 0;">
+                        Total: <strong th:text="${totalCount ?: 0}">0</strong> activities
+                    </p>
+                </div>
+                <div class="last-updated">
+                    Last updated: <span id="lastUpdated">Just now</span>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Entity</th>
+                            <th>Description</th>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Timestamp</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="activity : ${activities}">
+                            <td>
+                                <span class="badge" 
+                                      th:classappend="'badge-' + ${activity.action.toLowerCase()}"
+                                      th:text="${activity.action}">ACTION</span>
+                            </td>
+                            <td th:text="${activity.entityType}">Entity</td>
+                            <td th:text="${activity.description}">Description</td>
+                            <td th:text="${activity.username}">User</td>
+                            <td th:text="${activity.userRole}">Role</td>
+                            <td th:text="${activity.timestamp}">Timestamp</td>
+                            <td th:text="${activity.ipAddress ?: 'N/A'}">IP</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let autoRefreshInterval = null;
+        let isAutoRefreshEnabled = true;
+        const REFRESH_INTERVAL = 30000; // 30 seconds
+
+        function updateLastUpdatedTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            document.getElementById('lastUpdated').textContent = timeString;
+        }
+
+        function refreshActivityLog() {
+            // Reload the page to get fresh data
+            window.location.reload();
+        }
+
+        function toggleAutoRefresh() {
+            const statusEl = document.getElementById('autoRefreshStatus');
+            const btn = document.getElementById('toggleRefreshBtn');
+            const indicator = statusEl.querySelector('.refresh-indicator') || document.createElement('span');
+            
+            if (isAutoRefreshEnabled) {
+                // Pause auto-refresh
+                clearInterval(autoRefreshInterval);
+                isAutoRefreshEnabled = false;
+                statusEl.innerHTML = '<span class="refresh-indicator paused"></span> Auto-refresh: OFF';
+                btn.textContent = 'Resume';
+                btn.style.background = '#e53935';
+            } else {
+                // Resume auto-refresh
+                startAutoRefresh();
+                isAutoRefreshEnabled = true;
+                statusEl.innerHTML = '<span class="refresh-indicator"></span> Auto-refresh: ON';
+                btn.textContent = 'Pause';
+                btn.style.background = '#43a047';
+            }
+        }
+
+        function startAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            autoRefreshInterval = setInterval(() => {
+                if (isAutoRefreshEnabled) {
+                    updateLastUpdatedTime();
+                    refreshActivityLog();
+                }
+            }, REFRESH_INTERVAL);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateLastUpdatedTime();
+            startAutoRefresh();
+            
+            // Update time every second for display
+            setInterval(updateLastUpdatedTime, 1000);
+        });
+
+        // Clean up interval when page is unloaded
+        window.addEventListener('beforeunload', function() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+        });
+    </script>
+</body>
+</html>
+

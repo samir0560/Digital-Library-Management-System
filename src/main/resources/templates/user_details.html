@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Details - Library Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #2d3748;
+        }
+
+        .content-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .user-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-item {
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-active {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .badge-inactive {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .badge-admin {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .badge-student {
+            background: #e9d8fd;
+            color: #553c9a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #2d3748;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        /* Popup Styles */
+        .popup-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            min-width: 300px;
+            max-width: 400px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            opacity: 0;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .popup-message.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .popup-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .popup-icon {
+            font-size: 24px;
+            font-weight: bold;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .popup-text {
+            flex: 1;
+            font-size: 16px;
+            font-weight: 500;
+            color: white;
+        }
+
+        .popup-success {
+            background: linear-gradient(135deg, #43a047, #2e7d32);
+        }
+
+        .popup-success .popup-icon {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .popup-error {
+            background: linear-gradient(135deg, #e53935, #c62828);
+        }
+
+        .popup-error .popup-icon {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        /* Password Toggle Styles */
+        .password-input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-input-wrapper input[type="password"],
+        .password-input-wrapper input[type="text"] {
+            padding-right: 45px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #718096;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            user-select: none;
+            z-index: 10;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        .password-toggle:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .password-toggle.active {
+            color: #667eea;
+        }
+
+        .password-toggle::before {
+            content: '👁';
+            font-size: 20px;
+        }
+
+        .password-toggle.active::before {
+            content: '🙈';
+        }
+    </style>
+</head>
+<body>
+    <!-- Hidden message containers -->
+    <div id="successMessage" th:if="${successMessage}" th:text="${successMessage}" style="display: none;"></div>
+    <div id="errorMessage" th:if="${errorMessage}" th:text="${errorMessage}" style="display: none;"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1>👤 User Details</h1>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button type="button" 
+                        th:data-user-id="${user.id}"
+                        th:data-full-name="${user.fullName ?: ''}"
+                        th:data-username="${user.username}"
+                        th:data-email="${user.email ?: ''}"
+                        th:data-phone="${user.phone ?: ''}"
+                        th:data-address="${user.address ?: ''}"
+                        th:data-student-id="${user.studentId ?: ''}"
+                        onclick="showEditModalFromButton(this)" 
+                        class="btn btn-primary" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">
+                    ✏️ Edit Information
+                </button>
+                <button type="button" 
+                        th:data-user-id="${user.id}"
+                        onclick="showPasswordChangeModal(this)" 
+                        class="btn btn-primary" style="background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);">
+                    🔑 Change Password
+                </button>
+                <a th:href="@{/admin/users/manage}" class="btn btn-primary">← Back to User Management</a>
+            </div>
+        </div>
+
+        <div th:if="${user}" class="content-card">
+            <div class="user-info">
+                <div class="info-item" th:if="${user.fullName}">
+                    <div class="info-label">Full Name</div>
+                    <div class="info-value" th:text="${user.fullName}">Full Name</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Username</div>
+                    <div class="info-value" th:text="${user.username}">Username</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Role</div>
+                    <div class="info-value">
+                        <span class="badge" 
+                              th:classappend="${user.role == 'ADMIN'} ? 'badge-admin' : 'badge-student'"
+                              th:text="${user.role}">Role</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Status</div>
+                    <div class="info-value">
+                        <span class="badge" 
+                              th:classappend="${user.active} ? 'badge-active' : 'badge-inactive'"
+                              th:text="${user.active} ? 'Active' : 'Inactive'">Status</span>
+                    </div>
+                </div>
+                <div class="info-item" th:if="${user.email}">
+                    <div class="info-label">Email</div>
+                    <div class="info-value" th:text="${user.email}">Email</div>
+                </div>
+                <div class="info-item" th:if="${user.phone}">
+                    <div class="info-label">Phone</div>
+                    <div class="info-value" th:text="${user.phone}">Phone</div>
+                </div>
+                <div class="info-item" th:if="${user.studentId}">
+                    <div class="info-label">Student ID</div>
+                    <div class="info-value" th:text="${user.studentId}">Student ID</div>
+                </div>
+                <div class="info-item" th:if="${user.address}">
+                    <div class="info-label">Address</div>
+                    <div class="info-value" th:text="${user.address}">Address</div>
+                </div>
+            </div>
+
+            <div class="stats-grid" th:if="${user.role == 'STUDENT'}">
+                <div class="stat-card">
+                    <div class="stat-value" th:text="${totalIssues ?: 0}">0</div>
+                    <div class="stat-label">Total Issues</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" th:text="${activeIssues ?: 0}">0</div>
+                    <div class="stat-label">Active Issues</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" th:text="${totalFines ?: 0}">₹0</div>
+                    <div class="stat-label">Total Fines</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" th:text="${paidFines ?: 0}">₹0</div>
+                    <div class="stat-label">Paid Fines</div>
+                </div>
+            </div>
+        </div>
+
+        <div th:unless="${user}" class="content-card">
+            <div class="empty-state">
+                <div class="empty-state-icon">❌</div>
+                <h2>User Not Found</h2>
+                <p>The requested user could not be found.</p>
+                <a th:href="@{/admin/users/manage}" class="btn btn-primary" style="margin-top: 20px;">Back to User Management</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Student Modal -->
+    <div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <h2 style="margin-bottom: 20px;">✏️ Edit Student Information</h2>
+            <form th:action="@{/admin/users/update}" method="post">
+                <input type="hidden" id="editUserId" name="userId" />
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Full Name:</label>
+                    <input type="text" id="editFullName" name="fullName" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" />
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Username:</label>
+                    <input type="text" id="editUsername" name="username" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" />
+                    <p style="color: #718096; font-size: 12px; margin-top: 5px;">
+                        Username must be unique
+                    </p>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Email:</label>
+                    <input type="email" id="editEmail" name="email" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" />
+                    <p style="color: #718096; font-size: 12px; margin-top: 5px;">
+                        Email must be unique and can be used for login
+                    </p>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Phone:</label>
+                    <input type="tel" id="editPhone" name="phone" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" />
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Address:</label>
+                    <textarea id="editAddress" name="address" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"></textarea>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Student ID:</label>
+                    <input type="text" id="editStudentId" name="studentId" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" />
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; padding: 12px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        💾 Update
+                    </button>
+                    <button type="button" onclick="closeEditModal()" class="btn btn-primary" style="flex: 1; padding: 12px; background: #718096; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="passwordChangeModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10001;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <h2 style="margin-bottom: 20px; color: #e53e3e;">🔑 Change Student Password</h2>
+            <form th:action="@{/admin/users/change-password}" method="post" id="passwordChangeForm" onsubmit="return validatePasswordForm()">
+                <input type="hidden" id="passwordChangeUserId" name="userId" />
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">New Password:</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" 
+                               id="newPassword" 
+                               name="newPassword" 
+                               required 
+                               minlength="6"
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                               oninput="validatePasswordMatch()" />
+                        <span class="password-toggle" id="newPasswordToggle" onclick="togglePasswordVisibility('newPassword', 'newPasswordToggle')" title="Show/Hide Password" aria-label="Toggle password visibility"></span>
+                    </div>
+                    <p style="color: #718096; font-size: 12px; margin-top: 5px;">
+                        Password must be at least 6 characters long
+                    </p>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Confirm Password:</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" 
+                               id="confirmPassword" 
+                               name="confirmPassword" 
+                               required 
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                               oninput="validatePasswordMatch()" />
+                        <span class="password-toggle" id="confirmPasswordToggle" onclick="togglePasswordVisibility('confirmPassword', 'confirmPasswordToggle')" title="Show/Hide Password" aria-label="Toggle password visibility"></span>
+                    </div>
+                    <p id="passwordMatchMessage" style="color: #718096; font-size: 12px; margin-top: 5px;"></p>
+                </div>
+                <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+                    <p style="margin: 0; color: #856404; font-size: 13px;">
+                        ⚠️ <strong>Warning:</strong> Changing the password will log out the student from all sessions. They will need to use the new password to login.
+                    </p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; padding: 12px; background: #e53e3e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        🔑 Change Password
+                    </button>
+                    <button type="button" onclick="closePasswordChangeModal()" class="btn btn-primary" style="flex: 1; padding: 12px; background: #718096; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showEditModalFromButton(button) {
+            const userId = button.getAttribute('data-user-id');
+            const fullName = button.getAttribute('data-full-name') || '';
+            const username = button.getAttribute('data-username') || '';
+            const email = button.getAttribute('data-email') || '';
+            const phone = button.getAttribute('data-phone') || '';
+            const address = button.getAttribute('data-address') || '';
+            const studentId = button.getAttribute('data-student-id') || '';
+            showEditModal(userId, fullName, username, email, phone, address, studentId);
+        }
+
+        function showEditModal(userId, fullName, username, email, phone, address, studentId) {
+            document.getElementById('editUserId').value = userId || '';
+            document.getElementById('editFullName').value = fullName || '';
+            document.getElementById('editUsername').value = username || '';
+            document.getElementById('editEmail').value = email || '';
+            document.getElementById('editPhone').value = phone || '';
+            document.getElementById('editAddress').value = address || '';
+            document.getElementById('editStudentId').value = studentId || '';
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // Password change modal functions
+        function showPasswordChangeModal(button) {
+            const userId = button.getAttribute('data-user-id');
+            document.getElementById('passwordChangeUserId').value = userId || '';
+            document.getElementById('passwordChangeModal').style.display = 'block';
+            // Clear form
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('passwordMatchMessage').textContent = '';
+        }
+
+        function closePasswordChangeModal() {
+            document.getElementById('passwordChangeModal').style.display = 'none';
+            // Clear form
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('passwordMatchMessage').textContent = '';
+        }
+
+        function validatePasswordMatch() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const messageElement = document.getElementById('passwordMatchMessage');
+            
+            if (confirmPassword.length === 0) {
+                messageElement.textContent = '';
+                return;
+            }
+            
+            if (newPassword === confirmPassword) {
+                messageElement.textContent = '✓ Passwords match';
+                messageElement.style.color = '#43a047';
+            } else {
+                messageElement.textContent = '⚠️ Passwords do not match';
+                messageElement.style.color = '#e53e3e';
+            }
+        }
+
+        function validatePasswordForm() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword.length < 6) {
+                alert('Password must be at least 6 characters long!');
+                return false;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                alert('Passwords do not match! Please make sure both passwords are the same.');
+                return false;
+            }
+            
+            return confirm('Are you sure you want to change this student\'s password? This action cannot be undone.');
+        }
+
+        // Password visibility toggle
+        function togglePasswordVisibility(inputId, toggleId) {
+            const passwordInput = document.getElementById(inputId);
+            const passwordToggle = document.getElementById(toggleId);
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordToggle.classList.add('active');
+            } else {
+                passwordInput.type = 'password';
+                passwordToggle.classList.remove('active');
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const editModal = document.getElementById('editModal');
+            const passwordModal = document.getElementById('passwordChangeModal');
+            if (event.target == editModal) {
+                editModal.style.display = 'none';
+            }
+            if (event.target == passwordModal) {
+                passwordModal.style.display = 'none';
+            }
+        }
+
+        // Show popup messages
+        function showPopup(message, type) {
+            const existingPopup = document.getElementById('messagePopup');
+            if (existingPopup) {
+                existingPopup.remove();
+            }
+
+            const popup = document.createElement('div');
+            popup.id = 'messagePopup';
+            popup.className = `popup-message popup-${type}`;
+            popup.innerHTML = `
+                <div class="popup-content">
+                    <span class="popup-icon">${type === 'success' ? '✓' : '✕'}</span>
+                    <span class="popup-text">${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(popup);
+
+            setTimeout(() => {
+                popup.classList.add('show');
+            }, 10);
+
+            setTimeout(() => {
+                popup.classList.remove('show');
+                setTimeout(() => {
+                    popup.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const successMsg = document.getElementById('successMessage')?.textContent;
+            if (successMsg) {
+                showPopup(successMsg, 'success');
+            }
+
+            const errorMsg = document.getElementById('errorMessage')?.textContent;
+            if (errorMsg) {
+                showPopup(errorMsg, 'error');
+            }
+        });
+    </script>
+</body>
+</html>
+

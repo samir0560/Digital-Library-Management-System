@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Library Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+            opacity: 0.3;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100px); }
+        }
+
+        /* Navbar */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        nav h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 1px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            font-size: 15px;
+            white-space: nowrap;
+        }
+
+        nav ul li a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+            padding: 5px;
+            z-index: 101;
+        }
+
+        .hamburger span {
+            width: 28px;
+            height: 3px;
+            background: white;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(8px, -8px);
+        }
+
+        /* Overlay for mobile menu */
+        .menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .menu-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Login Card */
+        .login-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 45px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.6s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .login-header .icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-header h2 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #718096;
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 16px 50px 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 42px;
+            cursor: pointer;
+            color: #718096;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            user-select: none;
+            z-index: 10;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        .password-toggle:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.1);
+        }
+
+        .password-toggle.active {
+            color: #667eea;
+        }
+
+        .password-toggle::before {
+            content: '👁';
+            font-size: 20px;
+            filter: grayscale(0);
+        }
+
+        .password-toggle.active::before {
+            content: '🙈';
+            filter: grayscale(0);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 25px;
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .signup-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-left: 4px solid #e53e3e;
+        }
+
+        /* Popup Styles */
+        .popup-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            min-width: 300px;
+            max-width: 400px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            opacity: 0;
+            transition: all 0.3s ease-in-out;
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        .popup-message.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .popup-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .popup-icon {
+            font-size: 24px;
+            font-weight: bold;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .popup-text {
+            flex: 1;
+            font-size: 16px;
+            font-weight: 500;
+            color: white;
+        }
+
+        .popup-success {
+            background: linear-gradient(135deg, #43a047, #2e7d32);
+        }
+
+        .popup-success .popup-icon {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .popup-error {
+            background: linear-gradient(135deg, #e53935, #c62828);
+        }
+
+        .popup-error .popup-icon {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        #successMessage, #errorMessage {
+            display: none;
+        }
+
+        /* Mobile Menu */
+        @media (max-width: 968px) {
+            .hamburger {
+                display: flex;
+            }
+
+            nav ul {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 280px;
+                height: 100vh;
+                background: rgba(102, 126, 234, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 80px 30px 30px;
+                gap: 0;
+                box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+                transition: right 0.3s ease;
+                z-index: 100;
+            }
+
+            nav ul.active {
+                right: 0;
+            }
+
+            nav ul li {
+                width: 100%;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            nav ul li:last-child {
+                border-bottom: none;
+            }
+
+            nav ul li a {
+                display: block;
+                width: 100%;
+                padding: 15px 0;
+                border-radius: 0;
+                font-size: 16px;
+                background: transparent;
+            }
+
+            nav ul li a:hover {
+                background: rgba(255, 255, 255, 0.2);
+                transform: translateX(5px);
+                padding-left: 10px;
+            }
+
+            nav {
+                padding: 15px 30px;
+            }
+
+            nav h1 {
+                font-size: 20px;
+            }
+
+            .login-card {
+                padding: 30px 25px;
+            }
+
+            .login-header h2 {
+                font-size: 26px;
+            }
+
+            .form-group input {
+                padding: 14px 45px 14px 18px;
+            }
+
+            .password-toggle {
+                right: 12px;
+                top: 38px;
+                font-size: 18px;
+            }
+        }
+    </style>
+    <script>
+        function showPopup(message, type) {
+            const existingPopup = document.getElementById('messagePopup');
+            if (existingPopup) {
+                existingPopup.remove();
+            }
+
+            const popup = document.createElement('div');
+            popup.id = 'messagePopup';
+            popup.className = `popup-message popup-${type}`;
+            popup.innerHTML = `
+                <div class="popup-content">
+                    <span class="popup-icon">${type === 'success' ? '✓' : '✕'}</span>
+                    <span class="popup-text">${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(popup);
+
+            setTimeout(() => {
+                popup.classList.add('show');
+            }, 10);
+
+            setTimeout(() => {
+                popup.classList.remove('show');
+                setTimeout(() => {
+                    popup.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const successMsg = document.getElementById('successMessage')?.textContent;
+            if (successMsg) {
+                showPopup(successMsg, 'success');
+            }
+
+            const errorMsg = document.getElementById('errorMessage')?.textContent;
+            if (errorMsg) {
+                showPopup(errorMsg, 'error');
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('logout') === 'true') {
+                showPopup('You have been logged out successfully.', 'success');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+
+        function toggleMenu() {
+            const navMenu = document.getElementById('navMenu');
+            const hamburger = document.getElementById('hamburger');
+            const overlay = document.getElementById('menuOverlay');
+            
+            navMenu.classList.toggle('active');
+            hamburger.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Close menu when clicking on a link
+        document.querySelectorAll('#navMenu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 968) {
+                    toggleMenu();
+                }
+            });
+        });
+
+        // Password visibility toggle
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const passwordToggle = document.getElementById('passwordToggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordToggle.classList.add('active');
+            } else {
+                passwordInput.type = 'password';
+                passwordToggle.classList.remove('active');
+            }
+        }
+    </script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav>
+        <h1>📚 Library Management System</h1>
+        <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <ul id="navMenu">
+            <li><a th:href="@{/}">🏠 Home</a></li>
+            <li><a th:href="@{/#features}">✨ Features</a></li>
+            <li><a th:href="@{/#about}">ℹ️ About</a></li>
+            <li><a th:href="@{/#contact}">📧 Contact</a></li>
+            <li><a th:href="@{/#help}">❓ Help</a></li>
+            <li><a th:href="@{/signup}">📝 Sign Up</a></li>
+            <li><a th:href="@{/login}">🔐 Login</a></li>
+        </ul>
+    </nav>
+    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
+    <!-- Hidden message containers -->
+    <div id="successMessage" th:if="${successMessage}" th:text="${successMessage}" style="display: none;"></div>
+    <div id="errorMessage" th:if="${errorMessage}" th:text="${errorMessage}" style="display: none;"></div>
+
+    <!-- Login Container -->
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="icon">📖</div>
+                <h2>Welcome Back</h2>
+                <p>Sign in to your account</p>
+            </div>
+            <form th:action="@{/login}" method="post">
+                <div th:if="${error}" class="error" th:text="${error}"></div>
+                <div th:if="${param.error}" class="error">Invalid username/email or password</div>
+                <div class="form-group">
+                    <label>Username or Email</label>
+                    <input type="text" name="username" placeholder="Enter your username or email" required autofocus>
+                    <p style="color: #718096; font-size: 12px; margin-top: 5px;">
+                        You can login using your username or email address
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" id="password" placeholder="Enter your password" required>
+                    <span class="password-toggle" id="passwordToggle" onclick="togglePassword()" title="Show/Hide Password" aria-label="Toggle password visibility"></span>
+                </div>
+                <button type="submit" class="btn-login">🔐 Sign In</button>
+                <div class="signup-link">
+                    Don't have an account? <a th:href="@{/signup}">Sign up here</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

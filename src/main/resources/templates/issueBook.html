@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<form th:action="@{/admin/issueBook}" method="post">
+    <h2>Issue Book</h2>
+    <select name="studentId" required>
+        <option value="">Select Student</option>
+        <option th:each="s: ${students}" th:value="${s.id}" th:text="${s.username}"></option>
+    </select>
+    <select name="bookId" required>
+        <option value="">Select Book</option>
+        <option th:each="b: ${books}" th:value="${b.id}" th:text="${b.title}"></option>
+    </select>
+    <button type="submit">Issue Book</button>
+</form>
+
+</body>
+</html>

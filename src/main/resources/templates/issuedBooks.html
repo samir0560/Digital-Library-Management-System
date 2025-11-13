@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Issued Books</title>
+</head>
+<body>
+<h2>Issued Books</h2>
+
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Student</th>
+        <th>Book</th>
+        <th>Issue Date</th>
+        <th>Return Date</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+    <tr th:each="issue : ${issues}">
+        <td th:text="${issue.id}"></td>
+        <td th:text="${issue.student.username}"></td>
+        <td th:text="${issue.book.title}"></td>
+        <td th:text="${issue.issueDate}"></td>
+        <td th:text="${issue.returnDate}"></td>
+        <td th:text="${issue.returned} ? 'Returned' : 'Not Returned'"></td>
+        <td>
+            <a th:if="!${issue.returned}" th:href="@{'/admin/returnBook/' + ${issue.id}}">Return</a>
+        </td>
+    </tr>
+</table>
+
+<p><a th:href="@{/admin/issueBook}">Issue New Book</a></p>
+</body>
+</html>
