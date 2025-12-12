@@ -1,4 +1,4 @@
-﻿package com.example.demo.model;
+package com.example.demo.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -40,3 +40,4 @@ public class ActivityLog {
     public String getIpAddress() { return ipAddress; }
     public void setIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
 }
+

@@ -1,4 +1,4 @@
-﻿package com.example.demo.model;
+package com.example.demo.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -33,3 +33,4 @@ public class Renewal {
     public String getRenewedBy() { return renewedBy; }
     public void setRenewedBy(String renewedBy) { this.renewedBy = renewedBy; }
 }
+

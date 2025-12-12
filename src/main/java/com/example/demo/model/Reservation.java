@@ -1,4 +1,4 @@
-﻿package com.example.demo.model;
+package com.example.demo.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -41,3 +41,4 @@ public class Reservation {
     public int getQueuePosition() { return queuePosition; }
     public void setQueuePosition(int queuePosition) { this.queuePosition = queuePosition; }
 }
+

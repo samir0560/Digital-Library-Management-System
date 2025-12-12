@@ -55,7 +55,12 @@ public class UserController {
     }
 
     @GetMapping("/login")
-    public String loginForm(Model model, @RequestParam(required = false) String logout, @RequestParam(required = false) String error) {
+    public String loginForm(Model model,
+                            @RequestParam(required = false) String logout,
+                            @RequestParam(required = false) String error,
+                            jakarta.servlet.http.HttpServletRequest request) {
+        // Ensure session exists before rendering large template to avoid CSRF init after commit
+        request.getSession(true);
         // Check for logout message
         if ("true".equals(logout)) {
             model.addAttribute("successMessage", "You have been logged out successfully.");

@@ -1,4 +1,4 @@
-﻿package com.example.demo.model;
+package com.example.demo.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -34,3 +34,4 @@ public class Review {
     public LocalDate getReviewDate() { return reviewDate; }
     public void setReviewDate(LocalDate reviewDate) { this.reviewDate = reviewDate; }
 }
+

@@ -1,4 +1,4 @@
-﻿package com.example.demo.model;
+package com.example.demo.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -46,3 +46,4 @@ public class FinePayment {
     public String getWaivedBy() { return waivedBy; }
     public void setWaivedBy(String waivedBy) { this.waivedBy = waivedBy; }
 }
+
